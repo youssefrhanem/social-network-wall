@@ -13,16 +13,27 @@ import { CreateAccountComponent } from './pages/create-account/create-account.co
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {HttpClientModule} from "@angular/common/http";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
+import { PostsComponent } from './pages/posts/posts.component';
+import {MatIconModule} from "@angular/material/icon";
+import {MatMenuModule} from "@angular/material/menu";
+import {MatCardModule} from "@angular/material/card";
+import {AngularFireModule} from "@angular/fire/compat";
+import {environment} from "../environments/environment";
+import {MaterialFileInputModule} from "ngx-material-file-input";
+import { AngularFireStorageModule} from "@angular/fire/compat/storage";
 
 @NgModule({
   declarations: [
     AppComponent,
     TopbarComponent,
     LoginComponent,
-    CreateAccountComponent
+    CreateAccountComponent,
+    PostsComponent
   ],
   imports: [
     BrowserModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireStorageModule,
     BrowserAnimationsModule,
     // Routing
     AppRoutingModule,
@@ -35,7 +46,11 @@ import {MatSnackBarModule} from "@angular/material/snack-bar";
     MatInputModule,
     // use HTTP Requests
     HttpClientModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatIconModule,
+    MatMenuModule,
+    MatCardModule,
+    MaterialFileInputModule
   ],
   providers: [],
   bootstrap: [AppComponent]

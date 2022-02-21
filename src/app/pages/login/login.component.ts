@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormControl, Validators} from "@angular/forms";
 import {UserService} from "../../services/user.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-login',
@@ -17,7 +18,8 @@ export class LoginComponent implements OnInit {
 */
 
   constructor(private fb:FormBuilder, public userService:UserService,
-              private snackBar: MatSnackBar) { }
+              private snackBar: MatSnackBar,
+              private router: Router) { }
 
   ngOnInit(): void {
   }
@@ -36,14 +38,14 @@ export class LoginComponent implements OnInit {
       (res: any)=>{
       console.log(res);
       if(res.length == 0){
-        console.log('account dose not exist')
         this.snackBar.open('account dose not exist', 'ok');
-      }else {
+      } else {
         if(res[0].password === this.loginForm.value.password){
-          console.log('matched')
           this.snackBar.open('Login Successful', 'ok');
+          this.userService.user = res[0];
+          localStorage.setItem('user', JSON.stringify(res[0]));
+          this.router.navigate(['/posts']);
         } else {
-          console.log('Incorrect password')
           this.snackBar.open('Incorrect password', 'ok');
         }
       }
