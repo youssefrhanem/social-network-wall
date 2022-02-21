@@ -1,0 +1,32 @@
+{
+  "users": [
+    {
+      "id": 1
+    },
+    {
+      "email": "dvfdv@ghghn",
+      "username": "gnghnfgnhfgh",
+      "password": "nfgnfgnhfgh",
+      "id": 2
+    },
+    {
+      "email": "dvfdv@ghghn",
+      "username": "gnghnfgnhfgh",
+      "password": "nfgnfgnhfgh",
+      "id": 3
+    },
+    {
+      "email": "dvfdv@ghghn",
+      "username": "gnghnfgnhfgh",
+      "password": "nfgnfgnhfgh",
+      "id": 4
+    },
+    {
+      "email": "vnvbn@fjhj",
+      "username": "vbnvbnvnvbn",
+      "password": "vbnvbnvbnvbn",
+      "id": 5
+    }
+  ],
+  "posts": []
+}
