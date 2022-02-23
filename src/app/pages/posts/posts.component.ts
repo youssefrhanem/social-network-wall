@@ -4,6 +4,7 @@ import {Router} from "@angular/router";
 import {AngularFireStorage} from "@angular/fire/compat/storage";
 import {finalize} from "rxjs";
 import {PostsService} from "../../services/posts.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-posts',
@@ -12,73 +13,78 @@ import {PostsService} from "../../services/posts.service";
 })
 export class PostsComponent implements OnInit {
 
-  selectedFile: any;
-  text= '';
-  posts: Array<any> = [];
 
-  postSchema = {
-    username: '',
-    imageUrl: '',
-    text: '',
-    likes: [],
-    comments:[{username:'', comment:''}]
-  }
-
-  constructor(private userService: UserService,
-              private router: Router,
-              private postService: PostsService,
-              private storage: AngularFireStorage,) { }
+  constructor(public userService:UserService, private router:Router, private storage:AngularFireStorage, public postService:PostsService, private snackbar:MatSnackBar) { }
 
   ngOnInit(): void {
     if(this.userService.user == undefined || this.userService.user == null){
       let str = localStorage.getItem('user');
-      if(str != null) {
+      if(str != null){
         this.userService.user = JSON.parse(str);
-      } else {
+      }
+      else{
         this.router.navigate(['/login']);
       }
     }
-
-    this.postService.getPosts()
-      .then((res: any)=>{
-        this.posts = res;
-        console.log(res)
-      }).catch((err)=> {
-        console.log(err);
+    this.postService.getPosts().then((res:any)=>{
+      this.posts = res;
+      for(let post of this.posts){
+        this.commentText.push("");
+      }
+    }).catch((err)=>{
+      console.log(err);
     })
   }
 
+  selectedFile:any;
+  text = "";
+  posts:Array<any> = [];
+  commentText:Array<string> = [];
 
-
-  onFileSelected(event: any) {
-  this.selectedFile = event.target.files[0];
+  onFileSelected(event:any){
+    this.selectedFile = event.target.files[0];
   }
 
   post(){
-
-    if(this.selectedFile != undefined || this.selectedFile != null) {
-      this.uploadImage().then((imageUrl) =>{
-        console.log(imageUrl);
-
+    this.snackbar.open('Creating the post...', '', {duration:15000});
+    if(this.selectedFile != undefined || this.selectedFile != null){
+      this.uploadImage().then((imageURL)=>{
+        console.log(imageURL);
         let postObj = {
           username: this.userService.user.username,
-          text: this.text,
-          imageUrl: imageUrl,
+          text : this.text,
+          imageURL: imageURL,
           likes: [],
-          comments: []
+          comments:[]
         };
         this.posts.push(postObj);
-        this.postService.saveNewPost(this.posts)
-          .then((res) => {
-            console.log(res);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        this.postService.saveNewPost(postObj).then((res)=>{
+          console.log(res);
+          this.snackbar.open('Posted successfully', 'ok');
+        }).catch((err)=>{
+          console.log(err);
+        });
+        this.selectedFile = undefined;
 
-      }).catch((err) => {
+      }).catch((err)=>{
         console.log(err);
       })
+    }
+    else{
+      let postObj = {
+        username: this.userService.user.username,
+        text : this.text,
+        imageURL: '',
+        likes: [],
+        comments:[]
+      };
+      this.posts.push(postObj);
+      this.postService.saveNewPost(postObj).then((res)=>{
+        console.log(res);
+        this.snackbar.open('Posted successfully', 'ok');
+      }).catch((err)=>{
+        console.log(err);
+      });
     }
   }
 
@@ -107,6 +113,46 @@ export class PostsComponent implements OnInit {
         }
       );
     });
+  }
+
+  like(postId:any){
+    for(let i = 0; i < this.posts.length; i++){
+      if(this.posts[i].id == postId){
+        if(this.posts[i].likes.indexOf(this.userService.user.id) >= 0){
+          this.posts[i].likes.splice(this.posts[i].likes.indexOf(this.userService.user.id), 1);
+        }
+        else{
+          this.posts[i].likes.push(this.userService.user.id);
+        }
+        this.postService.updateLikes(this.posts[i]).then((res)=>{
+          console.log(res);
+        }).catch((err)=>{
+          console.log(err);
+        })
+      }
+    }
+  }
+
+  comment(postId:any, commentIndex:any){
+    for(let i = 0; i < this.posts.length; i++){
+      if(this.posts[i].id == postId){
+        let commentObj = {
+          username: this.userService.user.username,
+          comment: this.commentText[commentIndex]
+        };
+        this.posts[i].comments.push(commentObj);
+        this.commentText[commentIndex] = "";
+        this.postService.updateComments(this.posts[i]);
+      }
+    }
+  }
+
+  postSchema = {
+    username :'',
+    imageURL:'',
+    text:'',
+    likes:[],
+    comments:[{username:'', comment:''}]
   }
 
 }
